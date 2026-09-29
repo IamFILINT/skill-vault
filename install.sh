@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="https://github.com/yourusername/skill-vault"
+REPO_URL="https://github.com/IamFILINT/skill-vault"
 SKILLS=(
   "obra/superpowers"
   "DietrichGebert/ponytail"
@@ -15,24 +15,15 @@ SKILLS=(
   "pbakaus/impeccable"
 )
 
-detect_harness() {
-  local harness=""
-  if command -v opencode &>/dev/null || [[ -d ~/.config/opencode ]]; then
-    harness="opencode"
-  elif command -v claude &>/dev/null || [[ -d ~/.claude ]]; then
-    harness="claude"
-  elif command -v codex &>/dev/null || [[ -d ~/.codex ]]; then
-    harness="codex"
-  elif command -v cursor &>/dev/null || [[ -d ~/.cursor ]]; then
-    harness="cursor"
-  elif command -v gemini &>/dev/null || [[ -d ~/.gemini ]]; then
-    harness="gemini"
-  elif command -v copilot &>/dev/null || [[ -d ~/.copilot ]]; then
-    harness="copilot"
-  else
-    harness="opencode"
-  fi
-  echo "$harness"
+detect_harnesses() {
+  local found=()
+  command -v opencode &>/dev/null || [[ -d ~/.config/opencode ]] && found+=("opencode")
+  command -v claude &>/dev/null || [[ -d ~/.claude ]] && found+=("claude")
+  command -v codex &>/dev/null || [[ -d ~/.codex ]] && found+=("codex")
+  command -v cursor &>/dev/null || [[ -d ~/.cursor ]] && found+=("cursor")
+  command -v gemini &>/dev/null || [[ -d ~/.gemini ]] && found+=("gemini")
+  command -v copilot &>/dev/null || [[ -d ~/.copilot ]] && found+=("copilot")
+  echo "${found[@]}"
 }
 
 get_skills_dir() {
@@ -48,11 +39,32 @@ get_skills_dir() {
   esac
 }
 
+show_menu() {
+  local harnesses=("$@")
+  echo ""
+  echo "=============================="
+  echo "  Skill Vault Installer"
+  echo "=============================="
+  echo ""
+  echo "Detected harnesses:"
+  local i=1
+  for h in "${harnesses[@]}"; do
+    echo "  $i) $h"
+    ((i++))
+  done
+  echo "  A) Install for all"
+  echo "  Q) Quit"
+  echo ""
+  read -rp "Choose harness [1-${#harnesses[@]}/A/Q]: " choice
+  echo "$choice"
+}
+
 install_for_harness() {
   local harness="$1"
   local skills_dir
   skills_dir=$(eval echo "$(get_skills_dir "$harness")")
 
+  echo ""
   echo "Installing for: $harness"
   echo "Skills dir: $skills_dir"
   mkdir -p "$skills_dir"
@@ -92,11 +104,48 @@ EOF
 
 main() {
   local harness="${1:-}"
-  if [[ -z "$harness" ]]; then
-    harness=$(detect_harness)
-    echo "Auto-detected harness: $harness"
+
+  if [[ -n "$harness" ]]; then
+    install_for_harness "$harness"
+    return
   fi
-  install_for_harness "$harness"
+
+  local detected
+  detected=$(detect_harnesses)
+  read -ra harnesses <<< "$detected"
+
+  if [[ ${#harnesses[@]} -eq 0 ]]; then
+    echo "No harness detected. Defaulting to opencode."
+    install_for_harness "opencode"
+    return
+  fi
+
+  if [[ ${#harnesses[@]} -eq 1 ]]; then
+    echo "Auto-detected: ${harnesses[0]}"
+    install_for_harness "${harnesses[0]}"
+    return
+  fi
+
+  local choice
+  choice=$(show_menu "${harnesses[@]}")
+
+  if [[ "$choice" == "Q" || "$choice" == "q" ]]; then
+    echo "Aborted."
+    return
+  fi
+
+  if [[ "$choice" == "A" || "$choice" == "a" ]]; then
+    for h in "${harnesses[@]}"; do
+      install_for_harness "$h"
+    done
+    return
+  fi
+
+  if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#harnesses[@]} )); then
+    install_for_harness "${harnesses[$((choice-1))]}"
+  else
+    echo "Invalid choice."
+  fi
 }
 
 main "$@"

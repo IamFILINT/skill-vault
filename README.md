@@ -5,7 +5,7 @@ One-command installer for the top 10 OpenCode/Claude/Codex skill repos. Auto-det
 ## One-Command Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yourusername/skill-vault/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/IamFILINT/skill-vault/main/install.sh | bash
 ```
 
 ## Supported Harnesses
@@ -22,7 +22,7 @@ curl -fsSL https://raw.githubusercontent.com/yourusername/skill-vault/main/insta
 ## Manual Harness Selection
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yourusername/skill-vault/main/install.sh | bash -s -- claude
+curl -fsSL https://raw.githubusercontent.com/IamFILINT/skill-vault/main/install.sh | bash -s -- claude
 ```
 
 ## What's Installed
@@ -41,13 +41,13 @@ curl -fsSL https://raw.githubusercontent.com/yourusername/skill-vault/main/insta
 ## Update
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yourusername/skill-vault/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/IamFILINT/skill-vault/main/install.sh | bash
 ```
 
 ## Uninstall
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yourusername/skill-vault/main/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/IamFILINT/skill-vault/main/uninstall.sh | bash
 ```
 
 ## License
